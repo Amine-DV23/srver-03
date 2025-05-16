@@ -1,33 +1,13 @@
-const express = require("express");
-const sqlite3 = require("sqlite3").verbose();
-const path = require("path");
+const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const path = require('path');
 
-// قاعدة البيانات
-const db = new sqlite3.Database("database.db");
+app.use(express.static('public'));
 
-db.run("CREATE TABLE IF NOT EXISTS users (name TEXT, email TEXT)");
-
-// إعدادات السيرفر
-app.use(express.static("public"));
-app.use(express.json());
-
-// حفظ البيانات
-app.post("/save", (req, res) => {
-  const { name, email } = req.body;
-  db.run("INSERT INTO users (name, email) VALUES (?, ?)", [name, email], err => {
-    if (err) return res.status(500).send("خطأ في الحفظ");
-    res.send("تم الحفظ بنجاح");
-  });
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// جلب البيانات
-app.get("/data", (req, res) => {
-  db.all("SELECT * FROM users", [], (err, rows) => {
-    if (err) return res.status(500).send("خطأ في القراءة");
-    res.json(rows);
-  });
+const listener = app.listen(process.env.PORT, () => {
+  console.log('Your app is listening on port ' + listener.address().port);
 });
-
-app.listen(PORT, () => console.log("✅ السيرفر يعمل على:", PORT));
